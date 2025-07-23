@@ -4,7 +4,7 @@ plugins {
     java
 }
 
-group = "org.example"
+group = "io.github.andasulca"
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_21
 
