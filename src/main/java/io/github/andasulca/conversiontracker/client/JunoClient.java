@@ -13,7 +13,7 @@ import java.util.List;
 @Component
 public class JunoClient {
 
-    private static final String BASE_URL = "http://localhost:8081/sales-data";
+    private static final String BASE_URL = "http://host.docker.internal:8081/sales-data";
     private final RestTemplate restTemplate = new RestTemplate();
 
     public List<SalesData> fetchSalesData(LocalDate fromDate, LocalDate toDate) {
