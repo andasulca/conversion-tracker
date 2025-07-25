@@ -75,23 +75,63 @@ java -jar build/libs/conversion-tracker-0.0.1-SNAPSHOT.jar
 
 ---
 
-## 5. Connect to Other Local Services
+## 5. Connect to External Sales Data Provider
 
-If you are running a separate service (like a "Juno" app) locally **outside of Docker**, you must use this hostname **inside your Docker container**:
+This application depends on an external HTTP API that provides sales data. It does **not** generate data itself. Instead, it fetches historical and real-time sales records and stores them in a local PostgreSQL database.
+
+If the external service is running **outside Docker** (on your local machine), use this special hostname to access it **from within the container:**
 
 ```text
 host.docker.internal
 ```
 
-So instead of using `http://localhost:8081/sales-data` in your app, use:
+Do **not** use localhost, as that points to the container itself — not your host machine.
+
+Update your .env file accordingly:
 
 ```text
-http://host.docker.internal:8081/sales-data
+EXTERNAL_API_URL=http://host.docker.internal:8081/sales-data
+```
+---
+## 6. External API Details
+The application periodically calls the following endpoint to retrieve sales data:
+```text
+GET /sales-data?fromDate=YYYY-MM-DD&toDate=YYYY-MM-DD
 ```
 
-This tells the container to connect to your host machine’s local services.
+Required query parameters:
+fromDate — Start date in ISO format (e.g., 2025-01-01)
+toDate — End date in ISO format (e.g., 2025-01-10)
 
----
+Example request:
+```text
+GET /sales-data?fromDate=2025-01-01&toDate=2025-01-10
+```
+
+Expected JSON response:
+```text
+[
+  {
+    "id": 1,
+    "trackingId": "ABC123",
+    "visitDate": "2025-01-01T12:30:00",
+    "saleDate": "2025-01-01T14:00:00",
+    "salePrice": 149.99,
+    "product": "Deluxe Widget",
+    "commissionAmount": 15.00
+  },
+  {
+    "id": 2,
+    "trackingId": "DEF456",
+    "visitDate": "2025-01-02T10:00:00",
+    "saleDate": null,
+    "salePrice": null,
+    "product": "Basic Gadget",
+    "commissionAmount": null
+  }
+]
+```
+If the external API is not available at startup, the app will continue running and attempt to fetch data later.
 
 ## Project Structure
 
