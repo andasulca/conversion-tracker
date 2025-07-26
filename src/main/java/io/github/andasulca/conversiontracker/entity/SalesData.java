@@ -1,6 +1,7 @@
 package io.github.andasulca.conversiontracker.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -17,21 +18,40 @@ public class SalesData {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @JsonProperty("trackingId")
     @Column(name = "tracking_id", nullable = false)
     private String trackingId;
 
-    @Column(name = "visit_date", nullable = false)
+    @JsonProperty("visitDate")
+    @Column(name = "visit_date")
     private LocalDateTime visitDate;
 
+    @JsonProperty("saleDate")
     @Column(name = "sale_date")
     private LocalDateTime saleDate;
 
+    @JsonProperty("salePrice")
     @Column(name = "sale_price", precision = 10, scale = 2)
     private BigDecimal salePrice;
 
+    @JsonProperty("commissionAmount")
     @Column(name = "commission_amount", precision = 10, scale = 2)
     private BigDecimal commissionAmount;
 
-    @Column(name = "product")
-    private String product;
+    @Column(name = "landing_page_code")
+    private String landingPageCode;
+
+    @Column(name = "action_type")
+    private String actionType;
+
+    @JsonProperty("product")
+    @Column(name = "product_id")
+    private String productId;
+
+    /**
+     * Returns a timestamp used for filtering: saleDate if exists, else visitDate.
+     */
+    public LocalDateTime getTimestamp() {
+        return (saleDate != null) ? saleDate : visitDate;
+    }
 }

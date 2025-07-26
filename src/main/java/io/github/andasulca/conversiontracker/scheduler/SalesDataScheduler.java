@@ -2,71 +2,66 @@ package io.github.andasulca.conversiontracker.scheduler;
 
 import io.github.andasulca.conversiontracker.client.JunoClient;
 import io.github.andasulca.conversiontracker.entity.SalesData;
+import io.github.andasulca.conversiontracker.repository.SalesDataRepository;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.stream.Collectors;
 
+@Slf4j
 @Component
 public class SalesDataScheduler {
 
-    private static final Logger logger = LoggerFactory.getLogger(SalesDataScheduler.class);
-
     private final JunoClient junoClient;
+    private final SalesDataRepository salesDataRepository;
 
-    private final List<SalesData> inMemoryData = new ArrayList<>();
+    private static final List<String> TRACKING_IDS = Arrays.asList(
+            "ABB001", "ABB002", "ABB003", "ABB004", "ABB005",
+            "TBS001", "TBS002", "TBS003", "TBS004", "TBS005",
+            "EKW001", "EKW002", "EKW003", "EKW004", "EKW005"
+    );
 
-    public SalesDataScheduler(JunoClient junoClient) {
+    public SalesDataScheduler(JunoClient junoClient, SalesDataRepository salesDataRepository) {
         this.junoClient = junoClient;
+        this.salesDataRepository = salesDataRepository;
     }
 
-    // On app startup — load historical data
     @PostConstruct
-    public void fetchInitialData() {
-        try {
-            LocalDate today = LocalDate.now();
-            LocalDate tenDaysAgo = today.minusDays(10);
-
-            List<SalesData> historical = junoClient.fetchSalesData(tenDaysAgo, today);
-
-            if (historical.isEmpty()) {
-                logger.warn("Fetched historical data successfully but got an empty result.");
-            } else {
-                inMemoryData.addAll(historical);
-                logger.info("Loaded {} historical records.", historical.size());
-            }
-        } catch (Exception e) {
-            logger.warn("Failed to fetch historical sales data on startup. Will retry later.", e);
-        }
+    public void init() {
+        log.info("Fetching historical data on startup...");
+        fetchAndStoreData(LocalDate.now().minusMonths(1), LocalDate.now());
     }
 
-
-
-    // Poll Juno every 5 minutes
-    @Scheduled(fixedRate = 5 * 60 * 1000)
-    public void pollJuno() {
-        try {
-            LocalDate today = LocalDate.now();
-            List<SalesData> newData = junoClient.fetchSalesData(today, today);
-
-            if (newData.isEmpty()) {
-                logger.warn("Polled new data but got empty result.");
-            } else {
-                inMemoryData.addAll(newData);
-                logger.info("Polled new data: {} records.", newData.size());
-            }
-        } catch (Exception e) {
-            logger.error("Failed to poll sales data from Juno.", e);
-        }
+    @Scheduled(fixedRate = 300000) // Every 5 minutes
+    public void pollNewData() {
+        log.info("Polling new data...");
+        fetchAndStoreData(LocalDate.now().minusDays(1), LocalDate.now());
     }
 
-    // Optional: access the data (e.g., from a controller later)
-    public List<SalesData> getData() {
-        return inMemoryData;
+    private void fetchAndStoreData(LocalDate from, LocalDate to) {
+        List<SalesData> allData = junoClient.fetchSalesData(from, to);
+        log.info("Fetched {} total records from Juno", allData.size());
+
+        allData.stream()
+                .limit(5)
+                .forEach(data -> log.info("Fetched: trackingId={}, actionType={}, productId={}",
+                        data.getTrackingId(), data.getActionType(), data.getProductId()));
+        if (allData.size() > 5) {
+            log.info("...and {} more records not shown", allData.size() - 5);
+        }
+
+        List<SalesData> filteredData = allData.stream()
+                .filter(data -> TRACKING_IDS.contains(data.getTrackingId()))
+                .collect(Collectors.toList());
+
+        log.info("Filtered to {} matching records", filteredData.size());
+
+        salesDataRepository.saveAll(filteredData);
+        log.info("Stored {} filtered sales records", filteredData.size());
     }
 }
