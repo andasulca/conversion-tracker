@@ -119,7 +119,7 @@ GET /sales-data?fromDate=2025-01-01&toDate=2025-01-10
 [
   {
     "id": 1,
-    "trackingId": "ABC123",
+    "trackingId": "ABB001",
     "visitDate": "2025-01-01T12:30:00",
     "saleDate": "2025-01-01T14:00:00",
     "salePrice": 149.99,
@@ -128,7 +128,7 @@ GET /sales-data?fromDate=2025-01-01&toDate=2025-01-10
   },
   {
     "id": 2,
-    "trackingId": "DEF456",
+    "trackingId": "ABB002",
     "visitDate": "2025-01-02T10:00:00",
     "saleDate": null,
     "salePrice": null,
@@ -165,21 +165,21 @@ GET /api/conversion-rate
 
 **Query Parameters:**
 
-- `landingPageCode` – Landing page identifier (e.g. `abc123`)
+- `landingPageCode` – Landing page identifier (e.g. `ABB001`)
 - `start` – Start date (format: `YYYY-MM-DD`)
 - `end` – End date (format: `YYYY-MM-DD`)
 
 **Example Request:**
 
 ```bash
-curl "http://localhost:8080/api/conversion-rate?landingPageCode=abc123&start=2025-07-01&end=2025-07-25"
+curl "http://localhost:8080/api/conversion-rate?landingPageCode=ABB001&fromDate=2025-07-01&toDate=2025-07-25"
 ```
 
 **Example Response:**
 
 ```json
 {
-  "landingPageCode": "abc123",
+  "landingPageCode": "ABB001",
   "conversionRate": 0.15
 }
 ```
@@ -203,14 +203,14 @@ GET /api/commission
 **Example Request:**
 
 ```bash
-curl "http://localhost:8080/api/commission?landingPageCode=abc123&start=2025-07-01&end=2025-07-25"
+curl "http://localhost:8080/api/commission?landingPageCode=ABB001&fromDate=2025-07-01&toDate=2025-07-25"
 ```
 
 **Example Response:**
 
 ```json
 {
-  "landingPageCode": "abc123",
+  "landingPageCode": "ABB001",
   "totalCommission": 42.50
 }
 ```
@@ -233,7 +233,7 @@ GET /api/product-conversions
 **Example Request:**
 
 ```bash
-curl "http://localhost:8080/api/product-conversions?start=2025-07-01&end=2025-07-25"
+curl "http://localhost:8080/api/products/conversions?fromDate=2025-07-01&toDate=2025-07-25"
 ```
 
 **Example Response:**

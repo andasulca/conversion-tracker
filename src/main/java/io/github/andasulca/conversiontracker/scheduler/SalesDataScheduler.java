@@ -1,6 +1,7 @@
 package io.github.andasulca.conversiontracker.scheduler;
 
 import io.github.andasulca.conversiontracker.client.JunoClient;
+import io.github.andasulca.conversiontracker.dto.SalesDataDto;
 import io.github.andasulca.conversiontracker.entity.SalesData;
 import io.github.andasulca.conversiontracker.repository.SalesDataRepository;
 import jakarta.annotation.PostConstruct;
@@ -44,13 +45,19 @@ public class SalesDataScheduler {
     }
 
     private void fetchAndStoreData(LocalDate from, LocalDate to) {
-        List<SalesData> allData = junoClient.fetchSalesData(from, to);
+        List<SalesDataDto> dtos = junoClient.fetchSalesData(from, to);
+
+        List<SalesData> allData = dtos.stream()
+                .map(this::mapToEntity)
+                .toList();
+
         log.info("Fetched {} total records from Juno", allData.size());
 
         allData.stream()
                 .limit(5)
                 .forEach(data -> log.info("Fetched: trackingId={}, actionType={}, productId={}",
                         data.getTrackingId(), data.getActionType(), data.getProductId()));
+
         if (allData.size() > 5) {
             log.info("...and {} more records not shown", allData.size() - 5);
         }
@@ -63,5 +70,24 @@ public class SalesDataScheduler {
 
         salesDataRepository.saveAll(filteredData);
         log.info("Stored {} filtered sales records", filteredData.size());
+    }
+
+    private SalesData mapToEntity(SalesDataDto dto) {
+        SalesData data = new SalesData();
+        data.setTrackingId(dto.trackingId());
+        data.setVisitDate(dto.visitDate());
+        data.setSaleDate(dto.saleDate());
+        data.setSalePrice(dto.salePrice());
+        data.setCommissionAmount(dto.commissionAmount());
+        data.setProductId(dto.product());
+
+        // Infer actionType based on saleDate
+        if (dto.saleDate() != null) {
+            data.setActionType("purchase");
+        } else {
+            data.setActionType("visit");
+        }
+
+        return data;
     }
 }

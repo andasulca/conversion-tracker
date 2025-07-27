@@ -1,11 +1,15 @@
 package io.github.andasulca.conversiontracker.controller;
 
+import io.github.andasulca.conversiontracker.dto.CommissionDto;
+import io.github.andasulca.conversiontracker.dto.ConversionRateDto;
+import io.github.andasulca.conversiontracker.dto.ProductConversionDto;
 import io.github.andasulca.conversiontracker.service.ConversionService;
-import io.github.andasulca.conversiontracker.dto.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @RestController
@@ -21,23 +25,35 @@ public class ConversionController {
     @GetMapping("/conversion-rate")
     public ConversionRateDto getConversionRate(
             @RequestParam String landingPageCode,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
-        return conversionService.getConversionRate(landingPageCode, from, to);
+            @RequestParam("fromDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam("toDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+
+        LocalDateTime fromDateTime = from.atStartOfDay();
+        LocalDateTime toDateTime = to.atTime(LocalTime.MAX);
+
+        return conversionService.getConversionRate(landingPageCode, fromDateTime, toDateTime);
     }
 
     @GetMapping("/commission")
     public CommissionDto getCommission(
             @RequestParam String landingPageCode,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
-        return conversionService.getCommission(landingPageCode, from, to);
+            @RequestParam("fromDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam("toDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+
+        LocalDateTime fromDateTime = from.atStartOfDay();
+        LocalDateTime toDateTime = to.atTime(LocalTime.MAX);
+
+        return conversionService.getCommission(landingPageCode, fromDateTime, toDateTime);
     }
 
     @GetMapping("/products/conversions")
     public List<ProductConversionDto> getProductConversions(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
-        return conversionService.getProductConversions(from, to);
+            @RequestParam("fromDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam("toDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+
+        LocalDateTime fromDateTime = from.atStartOfDay();
+        LocalDateTime toDateTime = to.atTime(LocalTime.MAX);
+
+        return conversionService.getProductConversions(fromDateTime, toDateTime);
     }
 }

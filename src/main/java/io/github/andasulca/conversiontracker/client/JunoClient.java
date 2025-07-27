@@ -1,6 +1,6 @@
 package io.github.andasulca.conversiontracker.client;
 
-import io.github.andasulca.conversiontracker.entity.SalesData;
+import io.github.andasulca.conversiontracker.dto.SalesDataDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +24,7 @@ public class JunoClient {
         this.baseUrl = baseUrl;
     }
 
-    public List<SalesData> fetchSalesData(LocalDate fromDate, LocalDate toDate) {
+    public List<SalesDataDto> fetchSalesData(LocalDate fromDate, LocalDate toDate) {
         String uri = UriComponentsBuilder.fromHttpUrl(baseUrl)
                 .queryParam("fromDate", fromDate.format(DateTimeFormatter.ISO_DATE))
                 .queryParam("toDate", toDate.format(DateTimeFormatter.ISO_DATE))
@@ -40,7 +40,7 @@ public class JunoClient {
                 log.info("Raw JSON preview: {}", preview);
             }
 
-            SalesData[] response = restTemplate.getForObject(uri, SalesData[].class);
+            SalesDataDto[] response = restTemplate.getForObject(uri, SalesDataDto[].class);
             if (response != null) {
                 log.info("Parsed {} sales records", response.length);
                 return Arrays.asList(response);
