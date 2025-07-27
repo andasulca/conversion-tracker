@@ -48,6 +48,30 @@ To stop everything:
 ```bash
 docker compose down
 ```
+
+### Debugging Guide
+
+- Port `5005` is always exposed in this setup for development
+- This is safe for local dev, but should be disabled in production builds
+#### Create a Remote Debug Configuration in IntelliJ
+
+1. Go to **Run > Edit Configurations**
+2. Click the ➕ icon and select **Remote JVM Debug**
+3. Use the following settings:
+   - **Name:** Docker Remote Debug
+   - **Host:** `localhost`
+   - **Port:** `5005`
+   - (Leave other settings as default)
+4. Click **OK** to save
+#### Start Debugging
+
+- Set breakpoints in your code
+- Go to **Run > Debug 'Docker Remote Debug'** or use `Shift + F9`
+- You should see:
+
+```text
+Connected to the target VM at 'localhost:5005' using socket transport.
+```
 ---
 
 ## 4. Connect to External Sales Data Provider
