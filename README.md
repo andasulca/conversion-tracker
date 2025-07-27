@@ -15,11 +15,6 @@ This app uses Docker to simplify local development. Follow these steps to run ev
 * [Docker Desktop](https://www.docker.com/products/docker-desktop) — must be installed and running
 * Git (to clone this project)
 
-Optional (for manual builds):
-
-* Java 21
-* Gradle
-
 ---
 
 ## 1. Start Docker
@@ -40,7 +35,7 @@ You can leave the values as-is for local testing.
 
 ---
 
-## 3. Build & Run with Docker (Recommended)
+## 3. Build & Run with Docker
 
 This builds the app and runs both the app and PostgreSQL container:
 
@@ -53,29 +48,9 @@ To stop everything:
 ```bash
 docker compose down
 ```
-
 ---
 
-## 4. (Optional) Manual Run
-
-If you'd rather run the app manually:
-
-1. Start the DB container:
-
-```bash
-docker compose up db
-```
-
-2. Build and run the app:
-
-```bash
-./gradlew bootJar
-java -jar build/libs/conversion-tracker-0.0.1-SNAPSHOT.jar
-```
-
----
-
-## 5. Connect to External Sales Data Provider
+## 4. Connect to External Sales Data Provider
 
 This application depends on an external HTTP API that provides sales data. It does **not** generate data itself. Instead, it fetches historical and real-time sales records and stores them in a local PostgreSQL database.
 
@@ -95,7 +70,7 @@ EXTERNAL_API_URL=http://host.docker.internal:8081/sales-data
 
 ---
 
-## 6. External API Details
+## 5. External API Details
 
 The application periodically calls the following endpoint to retrieve sales data:
 
@@ -150,7 +125,7 @@ If the external API is not available at startup, the app will continue running a
 
 ---
 
-## 7. 📡 Available APIs
+## 6. 📡 Available APIs
 
 This application exposes the following RESTful APIs under the base path `/api`.
 
@@ -251,7 +226,7 @@ curl "http://localhost:8080/api/product-conversions?start=2025-07-01&end=2025-07
   }
 ]
 ```
-## 8. 🔍 Inspect the Database (No GUI Required)
+## 7. 🔍 Inspect the Database (No GUI Required)
 
 You can connect directly to the PostgreSQL database **inside the Docker container** using the built-in `psql` CLI — no external tools needed.
 
