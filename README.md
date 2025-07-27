@@ -290,7 +290,33 @@ src/main/java/io/github/andasulca/conversiontracker
 ├── scheduler/
 └── service/
 ```
+`Note: This section is written from the perspective of a developer currently learning Spring Boot and the MVC pattern. It serves as a personal reference and may help future contributors understand the high-level layout.`
 
+This project follows a standard Spring Boot application structure aligned with the MVC (Model-View-Controller) architectural pattern. Here's a breakdown of each main package:
+
+* `ConversionTrackerApplication.java`
+Entry point of the application. Annotated with @SpringBootApplication, it bootstraps the entire Spring context.
+
+* `client/`
+Contains components responsible for interacting with external services or APIs (e.g., fetching exchange rates).
+
+* `controller/`
+Handles incoming HTTP requests. Maps endpoints and delegates business logic to the service layer.
+
+* `dto/ (Data Transfer Objects)`
+Defines objects used for transferring data between layers, especially between client requests and internal logic. Helps isolate external input/output models from domain models.
+
+* `entity/`
+Represents the core domain models and database entities. These classes are typically annotated with JPA annotations like @Entity.
+
+* `repository/`
+Interfaces extending Spring Data JPA repositories, providing easy CRUD operations and database queries with minimal boilerplate.
+
+* `scheduler/`
+Contains components for scheduled or time-based tasks. Uses Spring’s @Scheduled to automate background jobs.
+
+* `service/`
+Implements the core business logic of the application. Services receive data from controllers, process it, and delegate database operations to repositories.
 ---
 
 ## Stack
