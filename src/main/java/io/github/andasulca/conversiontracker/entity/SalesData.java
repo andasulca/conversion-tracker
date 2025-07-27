@@ -10,7 +10,12 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table(name = "sales_data")
+@Table(
+        name = "sales_data",
+        uniqueConstraints = @UniqueConstraint(
+                columnNames = {"tracking_id", "visit_date", "sale_date", "product_id", "action_type"}
+        )
+)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SalesData {
 

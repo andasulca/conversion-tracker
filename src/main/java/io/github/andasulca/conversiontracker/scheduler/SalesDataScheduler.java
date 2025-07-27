@@ -46,12 +46,11 @@ public class SalesDataScheduler {
 
     private void fetchAndStoreData(LocalDate from, LocalDate to) {
         List<SalesDataDto> dtos = junoClient.fetchSalesData(from, to);
-
         List<SalesData> allData = dtos.stream()
                 .map(this::mapToEntity)
                 .toList();
 
-        log.info("Fetched {} total records from Juno", allData.size());
+        log.info("Fetched {} total records from Juno API (range: {} to {})", allData.size(), from, to);
 
         allData.stream()
                 .limit(5)
@@ -64,13 +63,26 @@ public class SalesDataScheduler {
 
         List<SalesData> filteredData = allData.stream()
                 .filter(data -> TRACKING_IDS.contains(data.getTrackingId()))
-                .collect(Collectors.toList());
+                .distinct() // optional, in-memory deduplication
+                .filter(data -> !salesDataRepository.existsByTrackingIdAndVisitDateAndSaleDateAndProductIdAndActionType(
+                        data.getTrackingId(),
+                        data.getVisitDate(),
+                        data.getSaleDate(),
+                        data.getProductId(),
+                        data.getActionType()
+                ))
+                .toList();
 
-        log.info("Filtered to {} matching records", filteredData.size());
+        log.info("Filtered to {} records matching known tracking IDs and not already in DB", filteredData.size());
 
-        salesDataRepository.saveAll(filteredData);
-        log.info("Stored {} filtered sales records", filteredData.size());
+        try {
+            salesDataRepository.saveAll(filteredData);
+            log.info("Stored {} filtered sales records", filteredData.size());
+        } catch (Exception e) {
+            log.warn("Error while saving records to DB: {}", e.getMessage());
+        }
     }
+
 
     private SalesData mapToEntity(SalesDataDto dto) {
         SalesData data = new SalesData();

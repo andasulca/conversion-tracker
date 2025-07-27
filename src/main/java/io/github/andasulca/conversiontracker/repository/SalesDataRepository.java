@@ -29,4 +29,12 @@ public interface SalesDataRepository extends JpaRepository<SalesData, Long> {
             @Param("from") LocalDateTime from,
             @Param("to") LocalDateTime to
     );
+
+    boolean existsByTrackingIdAndVisitDateAndSaleDateAndProductIdAndActionType(
+            String trackingId,
+            LocalDateTime visitDate,
+            LocalDateTime saleDate,
+            String productId,
+            String actionType
+    );
 }
