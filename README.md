@@ -240,14 +240,21 @@ curl "http://localhost:8080/api/products/conversions?fromDate=2025-07-01&toDate=
 
 ```json
 [
-  {
-    "productId": "prod-001",
-    "conversionRate": 0.12
-  },
-  {
-    "productId": "prod-002",
-    "conversionRate": 0.33
-  }
+   {
+      "productName": "Fitness Tracker",
+      "landingPageCode": "EKW005",
+      "conversionRate": 1.45454545454545
+   },
+   {
+      "productName": "Fitness Tracker",
+      "landingPageCode": "EKW004",
+      "conversionRate": 1.33333333333333
+   },
+   {
+      "productName": "Fitness Tracker",
+      "landingPageCode": "EKW003",
+      "conversionRate": 16
+   }
 ]
 ```
 ## 7. 🔍 Inspect the Database (No GUI Required)
