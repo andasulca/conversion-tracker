@@ -50,16 +50,37 @@ public class ConversionService {
     public List<ProductConversionDto> getProductConversions(LocalDateTime from, LocalDateTime to) {
         List<SalesData> data = salesDataRepository.findByTimestampBetween(from, to);
 
-        Map<String, List<SalesData>> grouped = data.stream()
-                .collect(Collectors.groupingBy(SalesData::getProductId));
+        // Group by productId + landingPageCode
+        Map<String, Map<String, List<SalesData>>> grouped = data.stream()
+                .collect(Collectors.groupingBy(
+                        SalesData::getProductId,
+                        Collectors.groupingBy(SalesData::getLandingPageCode)
+                ));
 
-        return grouped.entrySet().stream().map(entry -> {
-            String productId = entry.getKey();
-            List<SalesData> entries = entry.getValue();
-            long visits = entries.stream().filter(d -> "visit".equalsIgnoreCase(d.getActionType())).count();
-            long purchases = entries.stream().filter(d -> "purchase".equalsIgnoreCase(d.getActionType())).count();
-            double rate = (visits == 0) ? 0.0 : (double) purchases / visits;
-            return new ProductConversionDto(productId, rate);
-        }).toList();
+        // Flatten the nested map of productId → landingPageCode → SalesData list,
+        // then calculate conversion rate (purchases / visits) for each unique
+        // (productId, landingPageCode) pair and map to ProductConversionDto.
+        return grouped.entrySet().stream()
+                .flatMap(productEntry -> {
+                    String productId = productEntry.getKey();
+                    Map<String, List<SalesData>> byLandingPage = productEntry.getValue();
+
+                    return byLandingPage.entrySet().stream().map(lpEntry -> {
+                        String landingPageCode = lpEntry.getKey();
+                        List<SalesData> entries = lpEntry.getValue();
+
+                        long visits = entries.stream()
+                                .filter(d -> "visit".equalsIgnoreCase(d.getActionType()))
+                                .count();
+                        long purchases = entries.stream()
+                                .filter(d -> "purchase".equalsIgnoreCase(d.getActionType()))
+                                .count();
+
+                        double rate = (visits == 0) ? 0.0 : (double) purchases / visits;
+
+                        return new ProductConversionDto(productId, landingPageCode, rate);
+                    });
+                })
+                .toList();
     }
 }

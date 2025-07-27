@@ -74,7 +74,8 @@ public class SalesDataScheduler {
 
     private SalesData mapToEntity(SalesDataDto dto) {
         SalesData data = new SalesData();
-        data.setTrackingId(dto.trackingId());
+        data.setTrackingId(dto.trackingId());//Used as Data source input
+        data.setLandingPageCode(dto.trackingId());//Used for querying in app
         data.setVisitDate(dto.visitDate());
         data.setSaleDate(dto.saleDate());
         data.setSalePrice(dto.salePrice());
